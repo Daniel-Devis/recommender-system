@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Movie Recommendations</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap">
+    <style>
+        html {
+            height: 100%;
+            background: url('/static/movie_background.jpg') no-repeat center center fixed;
+            background-size: cover;
+            background-image: linear-gradient(to bottom, rgba(18, 18, 18, 0.6) 0%, rgba(18, 18, 18, 0.9) 100%), url('/static/movie_background.jpg');
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            margin: 0;
+            padding: 0;
+            color: #dcddde;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding-bottom: 20px;
+        }
+
+        header {
+            color: #ffffff;
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+            height: 60px;
+            background: linear-gradient(to bottom, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+        }
+
+        header h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 36px;
+            color: #ffffff;
+            text-shadow: 3px 3px 9px rgba(0, 0, 0, 0.8);
+        }
+
+        .form-container {
+            width: auto;
+            padding: 20px;
+            margin: auto;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.6);
+            background: rgba(44, 47, 51, 0.9);
+        }
+
+        .matched-title {
+            background-color: rgba(0, 150, 136, 0.5);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            font-size: 18px;
+            font-weight: bold;
+        }
+
+        .movie-title {
+            padding: 10px 15px;
+            border-bottom: 1px solid #ddd;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .movie-title:hover {
+            background-color: #333;
+        }
+        .movie-title:last-child {
+            border-bottom: none;
+        }
+
+        .movie-title a {
+            color: #00bcd4; /* Teal color to match the buttons, adjust as needed */
+            text-decoration: none; /* Removes underline from links */
+            transition: color 0.3s ease; /* Smooth transition for hover effects */
+        }
+
+        .movie-title a:hover {
+            color: #009688; /* Darker shade of teal on hover */
+        }
+
+        input, button {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 6px;
+            box-sizing: border-box;
+        }
+        input {
+            background-color: #40444b;
+            color: #dcddde;
+            font-size: 16px;
+        }
+        button {
+            background-color: #009688;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: background-color 0.3s, box-shadow 0.3s;
+        }
+        button:hover {
+            background-color: #00796B;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+        }
+
+        .loading-message {
+            color: #fff;
+        
+        
+        
+            text-align: center;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .spinner {
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .footer {
+            padding: 5px 0;
+            font-size: 14px;
+            text-align: center;
+            background-color: #23272a;
+            color: #ffffff;
+            width: 100%;
+            height: 40px;
+        }
+        
+        select {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 10px;
+            border: none;
+            border-radius: 6px;
+            background-color: #40444b;
+            color: #dcddde;
+            font-size: 16px;
+        }
+
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="container">
+        <h1>Movie Recommendation System</h1>
+    </div>
+</header>
+
+<div class="container">
+    <div class="form-container" style="width: 80%; max-width: 900px;">
+        <form id="movieForm">
+            <!-- Grouping the movie title and genre select in a flex container -->
+            <div style="display: flex; gap: 10px; justify-content: center; width: 100%;">
+                <input type="text" id="movieTitle" name="movieTitle" placeholder="Type a movie title here" required style="width: 75%;">
+                <select id="genreSelect" name="genreSelect" style="width: 25%;">
+                    <option value="">All Genres</option>
+                    <option value="Adventure">Adventure</option>
+                    <option value="Animation">Animation</option>
+                    <option value="Children">Children</option>
+                    <option value="Comedy">Comedy</option>
+                    <option value="Fantasy">Fantasy</option>
+                    <option value="Romance">Romance</option>
+                    <option value="Drama">Drama</option>
+                    <option value="Action">Action</option>
+                    <option value="Crime">Crime</option>
+                    <option value="Thriller">Thriller</option>
+                    <option value="Horror">Horror</option>
+                    <option value="Mystery">Mystery</option>
+                    <option value="Sci-Fi">Sci-Fi</option>
+                    <option value="War">War</option>
+                    <option value="Musical">Musical</option>
+                    <option value="Documentary">Documentary</option>
+                    <option value="IMAX">IMAX</option>
+                    <option value="Western">Western</option>
+                    <option value="Film-Noir">Film-Noir</option>
+                </select>
+            </div>
+            <button type="submit">Get Recommendations</button>
+        </form>
+        <div id="recommendationResult" style="color: white; margin-top: 20px; visibility: hidden;"></div>
+    </div>
+</div>
+
+
+<script>
+    document.getElementById('movieForm').addEventListener("submit", function(e) {
+        e.preventDefault();
+        const movieTitle = document.getElementById("movieTitle").value;
+        const genre = document.getElementById("genreSelect").value;  // Extract genre from the select element
+        const resultDiv = document.getElementById("recommendationResult");
+        resultDiv.style.visibility = 'visible';
+        resultDiv.innerHTML = '<div class="loading-message"><div class="spinner"></div>Getting recommendations...</div>';
+        fetchRecommendations(movieTitle, genre);
+    });
+
+    function fetchRecommendations(movieTitle, genre) {
+        fetch('/recommend', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({movieTitle: movieTitle, genre: genre})
+        })
+        .then(response => response.json())
+        .then(data => {
+            const resultDiv = document.getElementById("recommendationResult");
+            resultDiv.innerHTML = ''; // Clear previous results
+
+            if (!data.matched_title) {
+                resultDiv.innerHTML = '<div class="matched-title">' + data.message + '</div>';
+                return;
+            }
+
+            if (data.recommendations.length === 0) {
+                resultDiv.innerHTML = '<div class="matched-title">Uh oh! No recommendations found for this genre. Try another one!</div>';
+                return;
+            }
+
+            const titleDiv = document.createElement('div');
+            titleDiv.classList.add('matched-title');
+            // Adjust the header based on whether a genre was selected
+            if (genre && genre.trim() !== '') {
+                titleDiv.textContent = `Other ${genre} Movies Like: ${data.matched_title}`;
+            } else {
+                titleDiv.textContent = `Other Movies Like: ${data.matched_title}`;
+            }
+            
+            resultDiv.appendChild(titleDiv);
+
+            data.recommendations.forEach(movie => {
+                const div = document.createElement('div');
+                div.classList.add('movie-title');
+                const link = document.createElement('a');
+                link.href = `https://www.imdb.com/title/${movie.imdbId}/`;
+                link.textContent = movie.title;
+                link.target = "_blank";
+                div.appendChild(link);
+                resultDiv.appendChild(div);
+            });
+            resultDiv.style.visibility = 'visible';
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const resultDiv = document.getElementById("recommendationResult");
+            resultDiv.textContent = "An error occurred. Please try again.";
+            resultDiv.style.visibility = 'visible';
+        });
+    }
+
+    
+
+
+
+
+</script>
+
+<footer class="footer">
+    <p>Applications of Artificial Intelligence, Machine Learning, and Data Science.
+       I can make mistakes. Consider checking online too.</p>
+</footer>
+
+</body>
+</html>
